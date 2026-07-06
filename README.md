@@ -24,7 +24,7 @@ Requires Emacs 30 or later. Add the following to your `init.el`:
 
 ```elisp
 (use-package lirve
-  :vc ( :url "https://github.com/tanrax/lirve.el"
+  :vc ( :url "https://git.andros.dev/andros/lirve.el"
         :rev :newest))
 ```
 

@@ -2,7 +2,7 @@
 ;;
 ;; Copyright © 2024 Andros Fenollosa
 ;; Authors: Andros Fenollosa <andros@fenollosa.email>
-;; URL: https://github.com/tanrax/lirve.el
+;; URL: https://git.andros.dev/andros/lirve.el
 ;; Version: 1.3.0
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
