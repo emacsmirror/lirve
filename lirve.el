@@ -1,4 +1,4 @@
-;;; lirve.el --- Learn irregular verbs in English. -*- lexical-binding: t -*-
+;;; lirve.el --- Learn irregular verbs in English -*- lexical-binding: t -*-
 ;;
 ;; Copyright © 2024 Andros Fenollosa
 ;; Authors: Andros Fenollosa <andros@fenollosa.email>
@@ -16,6 +16,7 @@
 ;;; Code:
 
 ;; Imports
+(require 'cl-lib)
 (require 'lirve-verbs)
 (require 'widget)
 (require 'wid-edit)
@@ -68,16 +69,6 @@
   (interactive)
   (kill-buffer lirve--buffer-name))
 
-(defun lirve--it-have-decimals (num)
-  "Return t if NUM is have decimals."
-  (let ((my-num (if (and
-		     (stringp num)) ;; Return 0 if it is not a number
-		    (string-to-number num) num)))
-    (when my-num (not (or (zerop my-num)    ;; Check if it is 0
-			  (integerp my-num) ;; Check if it is integer
-			  (and (floatp my-num) (equal my-num (float (truncate my-num)))) ;; Check if it is float
-			  )))))
-
 (defun lirve--shuffle (original-list &optional shuffled-list)
   "Apply the Fisher-Yates shuffle algorithm.
 The parameter SHUFFLED-LIST is used for recursion
@@ -129,11 +120,14 @@ Argument INFINITIVE verb to remove."
     (prin1 lirve--verbs-unresolved (current-buffer))))
 
 (defun lirve--load-verbs-unresolved ()
-  "Load the unresolved verbs from the file."
+  "Load the unresolved verbs from the file.
+Infinitives no longer present in `lirve-verbs--list' are discarded."
   (when (file-exists-p (lirve--full-path-unresolved))
     (with-temp-buffer
       (insert-file-contents (lirve--full-path-unresolved))
-      (setq lirve--verbs-unresolved (read (current-buffer))))))
+      (setq lirve--verbs-unresolved
+	    (seq-filter #'lirve--get-verb-for-infinitive
+			(read (current-buffer)))))))
 
 (defun lirve--value-field-simple-past ()
   "Get the value of the simple past."
@@ -149,9 +143,10 @@ Argument INFINITIVE verb to remove."
   (when (null lirve--verbs-shuffle)
     (setq lirve--verbs-shuffle (lirve--shuffle lirve-verbs--list)))
   ;; Get verb
-  (let* ((turn-unresolved (not (lirve--it-have-decimals (/ (float lirve--count-verbs) lirve--interval-unresolved)))) ;; Calculate if it is time to show unresolved verbs: Count / Interval. If it isn't a decimal, it is time to show unresolved verbs
+  (let* ((turn-unresolved (and lirve--verbs-unresolved ;; Every `lirve--interval-unresolved' verbs, show an unresolved verb
+			       (zerop (mod lirve--count-verbs lirve--interval-unresolved))))
 	 (verb-to-learn
-	  (if (and lirve--verbs-unresolved turn-unresolved)
+	  (if turn-unresolved
 	      (lirve--get-verb-for-infinitive (car lirve--verbs-unresolved))
 	    (car lirve--verbs-shuffle))))
     (setq lirve--verb-to-learn-infinitive (cdr (assq 'infinitive verb-to-learn)))
@@ -220,7 +215,7 @@ Argument INFINITIVE verb to remove."
 	;; Lirve--Replay button
 	(setq lirve--widget-button-lirve--replay (widget-create 'push-button
 							      :size 20
-							      :notify (lambda (&rest ignore)
+							      :notify (lambda (&rest _)
 									(lirve--replay))
 							      lirve--text-button-lirve--replay))
 	;; Space
@@ -229,7 +224,7 @@ Argument INFINITIVE verb to remove."
 	;; Quit button
 	(setq lirve--widget-button-quit (widget-create 'push-button
 						      :size 20
-						      :notify (lambda (&rest ignore) (lirve-kill-app))
+						      :notify (lambda (&rest _) (lirve-kill-app))
 						      lirve--text-button-quit))
 	(widget-backward 2))
     (when lirve--widget-item-space-before-success (widget-delete lirve--widget-item-space-before-success))
@@ -242,7 +237,7 @@ Argument INFINITIVE verb to remove."
 (defun lirve--make-button-check ()
   "Make the button check."
   (setq lirve--widget-button-check (widget-create 'push-button
-						 :notify (lambda (&rest ignore)
+						 :notify (lambda (&rest _)
 							   (setq lirve--resolved-p (lirve--is-win))
 							   (lirve--update))
 						 lirve--text-button-check)))
@@ -262,7 +257,7 @@ Argument INFINITIVE verb to remove."
 (defun lirve--make-button-show-solution ()
   "Make the button show solution."
   (setq lirve--widget-button-show-solution (widget-create 'push-button
-							 :notify (lambda (&rest ignore)
+							 :notify (lambda (&rest _)
 								   (setq lirve--resolved-p (lirve--is-win))
 								   (lirve--show-solutions)
 								   (lirve--update))

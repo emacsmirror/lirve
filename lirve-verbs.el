@@ -1,4 +1,4 @@
-;;; lirve-verbs.el --- Verb list for learning irregular verbs in English
+;;; lirve-verbs.el --- Verb list for learning irregular verbs in English -*- lexical-binding: t -*-
 ;;
 ;; Copyright © 2024 Andros Fenollosa
 ;; Authors: Andros Fenollosa <andros@fenollosa.email>
@@ -137,7 +137,7 @@
 			(simple-past . "drew")
 			(past-participle . "drawn")
 			(translations
-			 (es . '"(dibujar, trazar")))
+			 (es . "dibujar, trazar")))
 		       (
 			(infinitive . "dream")
 			(simple-past . "dreamt")
