@@ -1,6 +1,6 @@
 # Lirve: Learn irregular English verbs in Emacs
 
-Lirve helps you learn irregular verbs using the spaced repetition technique. In other words: Lirve remember your mistakes and repeat the challenge in the future.
+Lirve helps you learn irregular verbs by repeating the verbs you fail at regular intervals. In other words: Lirve remembers your mistakes and repeats the challenge in the future.
 
 ![Demo](demo.png)
 
@@ -18,20 +18,14 @@ And add the following to your `init.el`:
 (require 'lirve)
 ```
 
-### Straight
+### use-package
 
-Then, add it to your `init.el`.
+Requires Emacs 30 or later. Add the following to your `init.el`:
 
 ```elisp
 (use-package lirve
-  :straight (:host github :repo "tanrax/lirve.el" :files ("lirve-verbs.el" "lirve.el"))
-  :ensure t)
-```
-
-And add the following to your `init.el`:
-
-```elisp
-(require 'lirve)
+  :vc ( :url "https://github.com/tanrax/lirve.el"
+        :rev :newest))
 ```
 
 ## Configure (Optional)
@@ -43,7 +37,7 @@ Shows the translation of the verb when resolving or failing.
 Only available in Spanish (at the moment).
 
 ```elisp
-(setq lirve--set-translation 'es)
+(setq lirve-translation-language 'es)
 ```
 
 ## Usage
@@ -70,7 +64,7 @@ M-x learning-irregular-verbs-in-english
 | Key | Description |
 | --- | --- |
 | `TAB` | Move to the next field |
-| `S-TAB` | Move to the previous field |
+| `S-<tab>` | Move to the previous field |
 | `RET` | Click on the button |
 
 ## Collaborate
@@ -86,5 +80,5 @@ For example, the verb `beat` in Italian and Spanish:
     (past-participle . "beaten")
     (translations
         (es . "golpear")
-        (it . "colpo")))
+        (it . "colpire")))
 ```

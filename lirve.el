@@ -3,7 +3,7 @@
 ;; Copyright © 2024 Andros Fenollosa
 ;; Authors: Andros Fenollosa <andros@fenollosa.email>
 ;; URL: https://github.com/tanrax/lirve.el
-;; Version: 1.2.0
+;; Version: 1.3.0
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;; Package-Requires: ((emacs "26.1"))
 
@@ -23,6 +23,22 @@
 (eval-when-compile
   (require 'wid-edit))
 
+;; Customization
+(defgroup lirve nil
+  "Learn irregular verbs in English."
+  :group 'games
+  :prefix "lirve-")
+
+(define-obsolete-variable-alias 'lirve--set-translation
+  'lirve-translation-language "1.3.0")
+
+(defcustom lirve-translation-language nil
+  "Language code of the translations to display, or nil to disable them.
+Only `es' (Spanish) is available at the moment."
+  :type '(choice (const :tag "Disabled" nil)
+		 (const :tag "Spanish" es))
+  :group 'lirve)
+
 ;; Variables
 (defvar lirve--count-verbs 0) ;; It's used to know when unresolved verbs are shown
 (defvar lirve--interval-unresolved 3) ;; Interval to show unresolved verbs
@@ -35,7 +51,6 @@
 (defvar lirve--verb-to-learn-simple-past nil)
 (defvar lirve--verb-to-learn-past-participle nil)
 (defvar lirve--translation "")
-(defvar lirve--set-translation nil) ;; Set the translation language
 (defconst lirve--emoji-valid "✅")
 (defconst lirve--emoji-error "👎")
 (defvar lirve--widget-title nil)
@@ -152,7 +167,7 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
     (setq lirve--verb-to-learn-infinitive (cdr (assq 'infinitive verb-to-learn)))
     (setq lirve--verb-to-learn-simple-past (cdr (assq 'simple-past verb-to-learn)))
     (setq lirve--verb-to-learn-past-participle (cdr (assq 'past-participle verb-to-learn)))
-    (when lirve--set-translation (setq lirve--translation (cdr (assq lirve--set-translation (cdr (assq 'translations verb-to-learn))))))
+    (when lirve-translation-language (setq lirve--translation (cdr (assq lirve-translation-language (cdr (assq 'translations verb-to-learn))))))
     ;; Remove the verb from the list
     (unless turn-unresolved
 	(setq lirve--verbs-shuffle (cdr lirve--verbs-shuffle))))
@@ -184,8 +199,8 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
 		      lirve--emoji-valid lirve--emoji-error))))
 
 (defun lirve--show-translation ()
-  "Show translation if `lirve--show-translation' is t."
-  (when lirve--set-translation
+  "Show translation if `lirve-translation-language' is set."
+  (when lirve-translation-language
     (widget-value-set lirve--widget-item-verb (concat (lirve--format-value-infinitive) "   🇪🇸 " lirve--translation))))
 
 (defun lirve--toggle-layout-finish ()
