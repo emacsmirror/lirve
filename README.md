@@ -67,7 +67,9 @@ M-x learning-irregular-verbs-in-english
 | `S-<tab>` | Move to the previous field |
 | `RET` | Click on the button |
 
-## Collaborate
+## Contributing
+
+Contributions are welcome! Please see the [contribution guidelines](https://git.andros.dev/andros/contribute) for instructions on how to submit issues or pull requests.
 
 If you want to add more languages, make a PR with the translations in `lirve-verbs.el`.
 
