@@ -209,6 +209,15 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
   (when lirve-translation-language
     (widget-value-set lirve--widget-item-verb (concat (lirve--format-value-infinitive) "   🇪🇸 " lirve--translation))))
 
+(defun lirve--forget-widgets-finish ()
+  "Forget the widgets of the success layout."
+  (setq lirve--widget-item-space-before-success nil
+	lirve--widget-message-success nil
+	lirve--widget-item-space-after-success nil
+	lirve--widget-button-lirve--replay nil
+	lirve--widget-item-space-between-buttons nil
+	lirve--widget-button-quit nil))
+
 (defun lirve--toggle-layout-finish ()
   "Toggle the layout to success."
   (if (eq lirve--state :win)
@@ -252,12 +261,14 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
 						      :notify (lambda (&rest _) (lirve-kill-app))
 						      lirve--text-button-quit))
 	(widget-backward 2))
-    (when lirve--widget-item-space-before-success (widget-delete lirve--widget-item-space-before-success))
-    (when lirve--widget-message-success (widget-delete lirve--widget-message-success))
-    (when lirve--widget-item-space-after-success (widget-delete lirve--widget-item-space-after-success))
-    (when lirve--widget-button-lirve--replay (widget-delete lirve--widget-button-lirve--replay))
-    (when lirve--widget-item-space-between-buttons (widget-delete lirve--widget-item-space-between-buttons))
-    (when lirve--widget-button-quit (widget-delete lirve--widget-button-quit))))
+    (progn
+      (when lirve--widget-item-space-before-success (widget-delete lirve--widget-item-space-before-success))
+      (when lirve--widget-message-success (widget-delete lirve--widget-message-success))
+      (when lirve--widget-item-space-after-success (widget-delete lirve--widget-item-space-after-success))
+      (when lirve--widget-button-lirve--replay (widget-delete lirve--widget-button-lirve--replay))
+      (when lirve--widget-item-space-between-buttons (widget-delete lirve--widget-item-space-between-buttons))
+      (when lirve--widget-button-quit (widget-delete lirve--widget-button-quit))
+      (lirve--forget-widgets-finish))))
 
 (defun lirve--make-button-check ()
   "Make the button check."
@@ -379,6 +390,9 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
   (let ((inhibit-read-only t))
     (erase-buffer))
   (remove-overlays)
+  ;; Forget widgets from a previous session whose buffer was killed,
+  ;; their markers no longer point anywhere
+  (lirve--forget-widgets-finish)
   ;; Create the widgets
   ;; Title
   (insert (propertize (format "\n%s\n\n" lirve--text-title) 'face '(:height 1.2 :weight bold)))
