@@ -3,7 +3,7 @@
 ;; Copyright © 2024 Andros Fenollosa
 ;; Authors: Andros Fenollosa <andros@fenollosa.email>
 ;; URL: https://git.andros.dev/andros/lirve.el
-;; Version: 1.3.0
+;; Version: 1.4.0
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;; Package-Requires: ((emacs "26.1"))
 
@@ -18,6 +18,7 @@
 ;; Imports
 (require 'cl-lib)
 (require 'lirve-verbs)
+(require 'tabulated-list)
 (require 'widget)
 (require 'wid-edit)
 (eval-when-compile
@@ -46,6 +47,7 @@ Only `es' (Spanish) is available at the moment."
 (defconst lirve--file-name-unresolved ".lirve-unresolved")
 (defvar lirve--verbs-unresolved '())
 (defconst lirve--buffer-name "*Learning irregular verbs in English*")
+(defconst lirve--verbs-table-buffer-name "*Irregular verbs in English*")
 (defvar lirve--state :start) ;; :start -> Init, :playing before first check, :win show success layout
 (defvar lirve--verb-to-learn-infinitive nil)
 (defvar lirve--verb-to-learn-simple-past nil)
@@ -382,6 +384,50 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
   ;; Disable line numbers
   (display-line-numbers-mode -1)
   (widget-setup))
+
+;; Verbs table
+
+(defun lirve--verbs-table-entries ()
+  "Return the rows of the verbs table for `tabulated-list-entries'.
+Include a translation column when `lirve-translation-language' is set."
+  (mapcar
+   (lambda (verb)
+     (let ((infinitive (cdr (assq 'infinitive verb)))
+	   (simple-past (cdr (assq 'simple-past verb)))
+	   (past-participle (cdr (assq 'past-participle verb))))
+       (list infinitive
+	     (if lirve-translation-language
+		 (vector infinitive simple-past past-participle
+			 (or (cdr (assq lirve-translation-language
+					(cdr (assq 'translations verb))))
+			     ""))
+	       (vector infinitive simple-past past-participle)))))
+   lirve-verbs--list))
+
+(define-derived-mode lirve-verbs-table-mode tabulated-list-mode "Lirve-Verbs"
+  "Major mode to browse the list of irregular verbs.
+Click on a column header to sort by it.  Press \\[quit-window] to quit."
+  (setq tabulated-list-format
+	(if lirve-translation-language
+	    (vector '("Infinitive" 16 t)
+		    '("Simple past" 16 t)
+		    '("Past participle" 16 t)
+		    (list (format "Translation (%s)" lirve-translation-language) 0 t))
+	  (vector '("Infinitive" 16 t)
+		  '("Simple past" 16 t)
+		  '("Past participle" 0 t))))
+  (setq tabulated-list-entries #'lirve--verbs-table-entries)
+  (tabulated-list-init-header))
+
+(defun lirve-verbs-table ()
+  "Show a read-only table with all the irregular verbs.
+When `lirve-translation-language' is set, the table has a fourth
+column with the translation in that language."
+  (interactive)
+  (with-current-buffer (get-buffer-create lirve--verbs-table-buffer-name)
+    (lirve-verbs-table-mode)
+    (tabulated-list-print)
+    (pop-to-buffer (current-buffer))))
 
 ;; Init
 (defun lirve ()

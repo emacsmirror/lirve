@@ -59,6 +59,16 @@ I also recommend creating a function to make it easier to remember the command.
 M-x learning-irregular-verbs-in-english
 ```
 
+## Verbs table
+
+You can browse the full list of verbs in a read-only table:
+
+```
+M-x lirve-verbs-table
+```
+
+Click on a column header to sort by it, and press `q` to quit. If `lirve-translation-language` is set, the table includes a fourth column with the translations.
+
 ## Controls
 
 | Key | Description |
