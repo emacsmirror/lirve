@@ -3,7 +3,7 @@
 ;; Copyright © 2024 Andros Fenollosa
 ;; Authors: Andros Fenollosa <andros@fenollosa.email>
 ;; URL: https://git.andros.dev/andros/lirve.el
-;; Version: 1.4.0
+;; Version: 1.5.0
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;; Package-Requires: ((emacs "26.1"))
 
