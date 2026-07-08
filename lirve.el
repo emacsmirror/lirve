@@ -64,6 +64,8 @@ Only `es' (Spanish) is available at the moment."
 (defvar lirve--widget-label-check-past-participle nil)
 (defconst lirve--text-button-check "Check")
 (defvar lirve--widget-button-check nil)
+(defconst lirve--text-button-clone "Clone")
+(defvar lirve--widget-button-clone nil)
 (defvar lirve--widget-item-space-before-check nil)
 (defconst lirve--text-button-show-solution "Don't know")
 (defvar lirve--widget-button-show-solution nil)
@@ -222,6 +224,9 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
 	;; Remove show solution button
 	(widget-delete lirve--widget-button-show-solution)
 	(setq lirve--widget-button-show-solution nil)
+	;; Remove clone button
+	(widget-delete lirve--widget-button-clone)
+	(setq lirve--widget-button-clone nil)
 	;; Text success
 	(setq lirve--widget-item-space-before-success (widget-create 'item
 								    ""))
@@ -262,6 +267,18 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
   "Add space between Button check and Button show solution."
   (setq lirve--widget-item-space-before-check (widget-create 'item "\n")))
 
+(defun lirve--make-button-clone ()
+  "Make the button that copies the simple past into the past participle."
+  (setq lirve--widget-button-clone
+	(widget-create 'push-button
+		       :format " %[%v%]"
+		       :help-echo "Copy the simple past into the past participle"
+		       :notify (lambda (&rest _)
+				 (widget-value-set lirve--widget-field-past-participle
+						   (lirve--value-field-simple-past))
+				 (goto-char (widget-get lirve--widget-button-check :from)))
+		       lirve--text-button-clone)))
+
 
 (defun lirve--show-solutions ()
   "Show solutions."
@@ -295,6 +312,11 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
   (unless lirve--widget-item-space-before-check (lirve--make-space-after-check))
   ;; Reset button show solution
   (unless lirve--widget-button-show-solution (lirve--make-button-show-solution))
+  ;; Reset clone button
+  (unless lirve--widget-button-clone
+    (save-excursion
+      (goto-char (widget-get lirve--widget-label-check-simple-past :from))
+      (lirve--make-button-clone)))
   ;; Clear the fields
   (widget-value-set lirve--widget-field-simple-past "")
   (widget-value-set lirve--widget-label-check-simple-past "")
@@ -307,7 +329,8 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
   "Replay the challenge."
   (interactive)
   (lirve--start)
-  (widget-backward 1))
+  (goto-char (point-min))
+  (widget-forward 1))
 
 (defun lirve--update ()
   "Update state and show temps layouts."
@@ -357,6 +380,8 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
   (setq lirve--widget-field-simple-past (widget-create 'editable-field
 						       :size 8
 						       :help-echo "Type a Simple past"))
+  ;; Clone button
+  (lirve--make-button-clone)
   ;; Label check
   (insert " ")
   (setq lirve--widget-label-check-simple-past (widget-create 'item
