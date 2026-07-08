@@ -436,7 +436,8 @@ column with the translation in that language."
   (lirve--load-verbs-unresolved)
   (lirve--main-layout)
   (lirve--start)
-  (widget-backward 4))
+  (goto-char (point-min))
+  (widget-forward 1))
 
 (provide 'lirve)
 
