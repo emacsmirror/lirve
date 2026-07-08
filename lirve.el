@@ -69,6 +69,8 @@ Only `es' (Spanish) is available at the moment."
 (defvar lirve--widget-item-space-before-check nil)
 (defconst lirve--text-button-show-solution "Don't know")
 (defvar lirve--widget-button-show-solution nil)
+(defconst lirve--text-button-verbs-table "Verbs table")
+(defvar lirve--widget-button-verbs-table nil)
 (defvar lirve--widget-message-success nil)
 (defvar lirve--widget-item-space-before-success nil)
 (defconst lirve--text-success "Nice!")
@@ -213,8 +215,9 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
       (progn
 	;; Show translate
 	(lirve--show-translation)
-	;; Cursor to end
-	(goto-char (point-max))
+	;; Cursor to the success layout position, before the newline that
+	;; precedes the verbs table button
+	(goto-char (1- (widget-get lirve--widget-button-verbs-table :from)))
 	;; Remove check button
 	(widget-delete lirve--widget-button-check)
 	(setq lirve--widget-button-check nil)
@@ -297,6 +300,14 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
 								   (lirve--update))
 							 lirve--text-button-show-solution)))
 
+
+(defun lirve--make-button-verbs-table ()
+  "Make the button that shows the table with all the verbs."
+  (setq lirve--widget-button-verbs-table
+	(widget-create 'push-button
+		       :help-echo "Browse the full list of irregular verbs"
+		       :notify (lambda (&rest _) (lirve-verbs-table))
+		       lirve--text-button-verbs-table)))
 
 (defun lirve--start ()
   "Start challenge."
@@ -404,6 +415,10 @@ Infinitives no longer present in `lirve-verbs--list' are discarded."
   (lirve--make-space-after-check)
   ;; Show solution button
   (lirve--make-button-show-solution)
+  ;; Separator
+  (insert "\n")
+  ;; Verbs table button, always visible
+  (lirve--make-button-verbs-table)
   ;; Display the buffer
   (use-local-map widget-keymap)
   ;; Disable line numbers
